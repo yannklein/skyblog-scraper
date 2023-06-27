@@ -58,7 +58,7 @@ def copy_page(base_url, blog_dir, name_page)
   html_file = URI.open(url).read
   pic_base_urls = scrape_pictures(html_file, blog_dir)
   # remove every mention of the original website or skyrock
-  html_file.gsub!("#{base_url}/", '')
+  html_file.gsub!("#{base_url}/", '').gsub!('href="/', 'href="')
   pic_base_urls.each do |pic_base_url|
     html_file.gsub!("#{pic_base_url}/", "")
   end
