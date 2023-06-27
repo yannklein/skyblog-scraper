@@ -1,0 +1,75 @@
+.bloc, .sidebar, .bloc_title, #promos_ads h2, #promos_ads, .pagination {
+	font-size: 10px;
+	font-family: "Verdana", "Arial", "Helvetica", sans-serif;
+	font-weight: normal;
+}
+.bloc_title, #promos_ads h2, #blogwhois .blogtitle, #blogwhois .description {
+	text-align: left;
+}
+.bloc .date {
+    padding: 0.5em 0.7em;
+}
+
+/* Borders */
+#currentbp a, #changebp, #changebp a, .sidebar, .comment-item, .phylactere, .bloc-description {
+	border-color: #9A9997 !important;
+}
+.liste-actions li {
+	border: none;
+}
+.title_tooltip .pointe_border {
+    border-top-color: #31659C;
+}
+
+/* Backgrounds */
+.consult, .widget, .bloc, #promos_ads, #sidebar-left, .phylactere, .compteurs_block li, .section_box {
+	background: #000;
+}
+#currentbp a, #changebp a:hover, .sidebar, #load-more a, .bloc-description {
+	background: #0066CB;
+}
+.date, .bloc_title, #promos_ads h2, #currentbp a, .title_tooltip {
+	background: #31659C;
+}
+#blogcomments .highlight_own_comments .self {
+    background-image: url(/img/blog/comments_highlight_inverse.png);
+}
+
+/* Links & Colours */
+.consult, .bloc, .sidebar, .pop, .bloc_title a.plink, .liste-actions a:hover, #cybercop a:hover, 
+.pagination a, .sidebar h3 a, #load-more a, #currentbp a, .phylactere, .bloc-description {
+    color: #fff;
+}
+.bloc a, .sidebar a, .pop a, .date a, .suite, #bloginfo em, .pagination li.current a, .pagination a:hover, 
+#changebp a, .phylactere a {
+	color: #FFCB67;
+}
+.title_tooltip, .title_tooltip:hover {/* pour le titre archives, overridé par .bloc a */
+    color: #fff !important;
+}
+
+.blocTracklist, #menuTime {
+    background: rgba(255,255,255,0.50);
+}
+
+/* Nouveaux ciblages pour les bulles de MOOD */
+.phylactere.top_left .pointe_border {
+    border-bottom-color: #fff;
+}
+.phylactere.top_left .pointe_bg {
+    border-bottom-color: #000;
+}
+.phylactere.left .pointe_border {
+    border-right-color: #fff;
+}
+.phylactere.left .pointe_bg {
+    border-right-color: #000;
+}
+.righty .phylactere.left .pointe_border,
+.righty_one.content_large .phylactere.left .pointe_border {
+    border-left-color: #fff;
+}
+.righty .phylactere.left .pointe_bg,
+.righty_one.content_large .phylactere.left .pointe_bg {
+    border-left-color: #000;
+}
