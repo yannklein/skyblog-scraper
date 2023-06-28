@@ -4,6 +4,7 @@ require 'ostruct'
 require 'date'
 require "open-uri"
 require "nokogiri"
+require "cgi"
 
 def scrape(base_url)
   # create blog dir
@@ -12,7 +13,36 @@ def scrape(base_url)
   # parse the first page
   html_file = URI.open(base_url).read
   html_doc = Nokogiri::HTML.parse(html_file)
-  # get the css 
+  # get the css
+  scrape_css(html_doc, blog_dir)
+  # get the amount of pages
+  nb_pages = html_doc.search("ul.pagination li.last").search("a").attribute("href").value.match(/\/(\d*).html/)[1].to_i
+  puts "#{nb_pages} pages to be scraped"
+  # iterate over each page
+  for nb_page in (1..nb_pages)
+    # parse the nth page
+    html_file = URI.open("#{base_url}/#{nb_page}.html").read
+    html_doc = Nokogiri::HTML.parse(html_file)
+    # parse and saved each articles
+    html_doc.search(".plink").each do |link|
+      name_page = link.attribute("href").value.gsub("#{base_url}/", '').gsub(".html", '')
+      copy_page(base_url, blog_dir, name_page)
+    end
+    # parse and saved each photo details
+    # Example: https://soph-yan.skyrock.com/photo.html?id_article=514182126&id_article_media=-1
+    html_doc.search(".image-container a").each do |link|
+      uri = URI(link.attribute("href").value)
+      article_id = CGI::parse(uri.query)["id_article"][0]
+      new_url = "#{article_id}-#{uri.path[1..]}"
+      copy_detail_page(link.attribute("href").value, blog_dir, new_url, base_url)
+      link.attribute("href").value = new_url
+    end
+    # parse and saved each given page
+    copy_page(base_url, blog_dir, nb_page, html_doc.to_html)
+  end
+end
+
+def scrape_css(html_doc, blog_dir)
   html_doc.search('head > link[rel="stylesheet"]').each do |css_link|
     url = css_link.attribute("href").value
     css_file = URI.open(url).read
@@ -26,36 +56,12 @@ def scrape(base_url)
     end
     puts "Saved css file: #{url}"
   end
-  # get the amount of pages
-  nb_pages = html_doc.search("ul.pagination li.last").search("a").attribute("href").value.match(/\/(\d*).html/)[1].to_i
-  puts "#{nb_pages} pages to be scraped"
-  for nb_page in (1..nb_pages)
-    # parse and saved each article pages in a given page
-    html_doc.search(".plink").each do |link|
-      name_page = link.attribute("href").value.gsub("#{base_url}/", '').gsub(".html", '')
-      copy_page(base_url, blog_dir, name_page)
-    end
-    # parse and saved each given page
-    copy_page(base_url, blog_dir, nb_page)
-  end
-  # template = File.read(template_path)
-  # data = OpenStruct.new(JSON.parse(File.read(data_path)))
-  # # add the date to each day
-  # sunday_added = 0
-  # data['career_days'].each.with_index do |day, index|
-  #   sunday_added += 1 if index != 0 && (index % 3).zero?
-  #   day['date'] = Date.parse(data['start']) + index * 2 + sunday_added
-  # end
-  # # Demo day is always on Friday's
-  # data['career_days'].last['date'] -= 1
-  # generated = ERB.new(template).result(data.instance_eval { binding })
-  # File.write(output_path, generated)
 end
 
-def copy_page(base_url, blog_dir, name_page)
+def copy_page(base_url, blog_dir, name_page, html_file = nil)
   url = "#{base_url}/#{name_page}.html"
   # p url
-  html_file = URI.open(url).read
+  html_file = URI.open(url).read if html_file.nil?
   pic_base_urls = scrape_pictures(html_file, blog_dir)
   # remove every mention of the original website or skyrock
   html_file.gsub!("#{base_url}/", '').gsub!('href="/', 'href="')
@@ -65,6 +71,20 @@ def copy_page(base_url, blog_dir, name_page)
   File.write(File.join(__dir__,"../#{blog_dir}/index.html"), html_file) if name_page == 1
   File.write(File.join(__dir__,"../#{blog_dir}/#{name_page}.html"), html_file)
   puts "Page #{name_page} saved."
+end
+
+def copy_detail_page(original_url, blog_dir, new_url, base_url)
+  url = original_url
+  # p url
+  html_file = URI.open(url).read
+  pic_base_urls = scrape_pictures(html_file, blog_dir)
+  # remove every mention of the original website or skyrock
+  html_file.gsub!("#{base_url}/", '').gsub!('href="/', 'href="')
+  pic_base_urls.each do |pic_base_url|
+    html_file.gsub!("#{pic_base_url}/", "")
+  end
+  File.write(File.join(__dir__,"../#{blog_dir}/#{new_url}"), html_file)
+  puts "Page #{new_url} saved."
 end
 
 def scrape_pictures(html_file, blog_dir)
